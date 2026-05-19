@@ -1,4 +1,4 @@
-# i-harmonium
+# iplayharmonium
 
 A web-based harmonium that uses your laptop's lid angle to control the bellows (air pressure). Press keys and push your laptop lid down to play!
 
