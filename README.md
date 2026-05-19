@@ -2,6 +2,8 @@
 
 A web-based harmonium that uses your laptop's lid angle to control the bellows (air pressure). Press keys and push your laptop lid down to play!
 
+https://github.com/user-attachments/assets/ea46de71-a63a-412a-90ee-fcae20da953c
+
 ## How It Works
 
 - **Keys**: Press keyboard keys (A, W, S, E, D, F, T, G, Y, H, U, J, K) to play notes
