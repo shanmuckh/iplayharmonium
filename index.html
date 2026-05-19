@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>iplayharmonium</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
+            background:#24150f;
+            color:#f4e4bc;
+            font-family:'Inter',sans-serif;
+            text-align:center;
+            padding:20px;
+            cursor:pointer;
+            overflow-x:hidden;
+        }
+
+        .harmonium-btn {
+    display: inline-block;
+    padding: 12px 28px;
+    background: #2c1a12;                  /* Matches the piano key base */
+    color: #faedd0;                       /* Matches the warm ivory text */
+    text-decoration: none;                /* Removes the default underline */
+    font-family: Georgia, serif;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    border: 2px solid #faedd0;
+    border-radius: 4px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    user-select: none;
+    margin-top: 15px;
+}
+
+/* Hover State (Glow Effect) */
+.harmonium-btn:hover {
+    background: #e0a96d;                  /* Matches the active key amber/gold */
+    color: #1b0f0a;                       /* Dark text contrast */
+    border-color: #e0a96d;
+    box-shadow: 0 0 15px rgba(224, 169, 109, 0.6);
+    transform: translateY(-2px);          /* Subtle lift effect */
+}
+
+/* Active State (Button Press Effect) */
+.harmonium-btn:active {
+    transform: translateY(1px);           /* Feels like pushing a mechanical key down */
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.7);
+}
+
+        /* GitHub Logo */
+
+        .github-corner{
+            position:fixed;
+            top:22px;
+            right:22px;
+            color:#f4e4bc;
+            z-index:9999;
+            opacity:0.75;
+            transition:0.25s ease;
+        }
+
+        .github-corner:hover{
+            opacity:1;
+            transform:scale(1.12);
+        }
+
+        /* Scroll Reveal */
+
+        .reveal{
+            opacity:0;
+            transform:translateY(80px) rotateX(20deg);
+            filter:blur(14px);
+            transition:
+            opacity 1s ease,
+            transform 1s ease,
+            filter 1s ease;
+        }
+
+        .reveal.active{
+            opacity:1;
+            transform:translateY(0) rotateX(0);
+            filter:blur(0);
+        }
+
+        h1{
+            font-size:3rem;
+            margin-top:10px;
+            letter-spacing:-0.03em;
+        }
+
+        #status-tip{
+            font-style:italic;
+            font-size:0.95em;
+            color:#a48f7c;
+            margin-top:14px;
+        }
+
+        .piano{
+            display:flex;
+            justify-content:center;
+            margin:40px;
+            flex-wrap:wrap;
+        }
+
+        .key{
+            border:2px solid #f4e4bc;
+            width:60px;
+            height:200px;
+            margin:2px;
+
+            display:flex;
+            align-items:flex-end;
+            justify-content:center;
+
+            padding-bottom:10px;
+
+            font-weight:bold;
+
+            position:relative;
+
+            border-radius:0 0 8px 8px;
+
+            background:
+            linear-gradient(to bottom,
+            #f7ecd2,
+            #d7bf9d);
+
+            color:#2c1a12;
+
+            transition:0.08s ease;
+
+            box-shadow:
+            inset 0 2px 4px rgba(255,255,255,0.3),
+            0 5px 10px rgba(0,0,0,0.35);
+        }
+
+        .black{
+            background:
+            linear-gradient(to bottom,
+            #241914,
+            #080808);
+
+            color:white;
+
+            height:120px;
+            width:40px;
+
+            margin-left:-20px;
+            margin-right:-20px;
+
+            z-index:2;
+
+            border-color:#555;
+        }
+
+        .active{
+            background:#d4a373 !important;
+            color:#2c1a12;
+
+            transform:translateY(5px);
+
+            box-shadow:
+            inset 0 5px 10px rgba(0,0,0,0.5);
+        }
+
+        #bellows-meter{
+            width:400px;
+            height:12px;
+
+            border:1px solid #f4e4bc;
+
+            margin:24px auto;
+
+            border-radius:10px;
+
+            overflow:hidden;
+
+            background:rgba(255,255,255,0.05);
+        }
+
+        #fill{
+            width:0%;
+            height:100%;
+
+            background:
+            linear-gradient(90deg,
+            #d4a373,
+            #ffe0b2);
+
+            transition:width 0.05s linear;
+        }
+
+        #angle-display{
+            margin-top:10px;
+            color:#f4e4bc;
+        }
+
+        /* Click Spark */
+
+        .click-spark{
+            position:fixed;
+            width:10px;
+            height:10px;
+            border-radius:50%;
+            pointer-events:none;
+            z-index:999999;
+            animation:sparkAnim 650ms ease-out forwards;
+        }
+
+        @keyframes sparkAnim{
+
+            0%{
+                transform:translate(0,0) scale(1.2);
+                opacity:1;
+            }
+
+            100%{
+                transform:translate(var(--tx), var(--ty)) scale(0);
+                opacity:0;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- GitHub Corner -->
+
+    <a href="https://github.com/shanmuckh/iplayharmonium"
+       target="_blank"
+       class="github-corner"
+       aria-label="GitHub Repository">
+
+      <svg height="42" width="42" viewBox="0 0 16 16" fill="currentColor">
+        <path d="M8 0C3.58 0 0 3.58 0 8a8 8 0 0 0 5.47 7.59c.4.07.55-.17.55-.38
+        0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13
+        -.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87
+        2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95
+        0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21
+        2.2.82a7.65 7.65 0 0 1 4 0c1.53-1.04 2.2-.82
+        2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82
+        1.27.82 2.15 0 3.07-1.87 3.75-3.65
+        3.95.29.25.54.73.54 1.48 0 1.07-.01
+        1.93-.01 2.2 0 .21.15.46.55.38A8.01
+        8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+      </svg>
+    </a>
+
+    <h1 class="reveal">iplayharmonium</h1>
+
+    <p id="status-tip" class="reveal">
+        Click anywhere once to activate sound, then hold keys and <b>push lid down</b>
+    </p>
+
+    <div id="bellows-meter" class="reveal">
+        <div id="fill"></div>
+    </div>
+
+    <h3 id="angle-display" class="reveal">
+        Lid Angle: 0°
+    </h3>
+
+    <div class="piano reveal">
+
+        <div id="key-a" class="key">C</div>
+        <div id="key-w" class="key black">C#</div>
+
+        <div id="key-s" class="key">D</div>
+        <div id="key-e" class="key black">D#</div>
+
+        <div id="key-d" class="key">E</div>
+
+        <div id="key-f" class="key">F</div>
+        <div id="key-t" class="key black">F#</div>
+
+        <div id="key-g" class="key">G</div>
+        <div id="key-y" class="key black">G#</div>
+
+        <div id="key-h" class="key">A</div>
+        <div id="key-u" class="key black">A#</div>
+
+        <div id="key-j" class="key">B</div>
+
+        <div id="key-k" class="key">C</div>
+
+    </div>
+
+<script>
+
+    /* Scroll Reveal */
+
+    const reveals = document.querySelectorAll(".reveal");
+
+    const observer = new IntersectionObserver(entries=>{
+
+        entries.forEach(entry=>{
+
+            if(entry.isIntersecting){
+
+                entry.target.classList.add("active");
+
+            }
+
+        });
+
+    },{
+
+        threshold:0.15
+
+    });
+
+    reveals.forEach(el=>observer.observe(el));
+
+    /* Click Spark */
+
+    document.addEventListener("click", e => {
+
+      const colors = [
+        "#ff6b6b",
+        "#ffd93d",
+        "#6bcBff",
+        "#ffffff"
+      ];
+
+      const sparkCount = 12;
+
+      for(let i=0;i<sparkCount;i++){
+
+        const s = document.createElement("span");
+
+        s.className = "click-spark";
+
+        const angle = (Math.PI * 2 * i) / sparkCount;
+
+        const radius = 20 + Math.random() * 30;
+
+        const x = Math.cos(angle) * radius + "px";
+        const y = Math.sin(angle) * radius + "px";
+
+        s.style.left = e.clientX + "px";
+        s.style.top  = e.clientY + "px";
+
+        s.style.setProperty("--tx", x);
+        s.style.setProperty("--ty", y);
+
+        s.style.background =
+          colors[Math.floor(Math.random()*colors.length)];
+
+        s.style.boxShadow =
+          `0 0 12px ${s.style.background}`;
+
+        document.body.appendChild(s);
+
+        setTimeout(()=>{
+          s.remove();
+        },650);
+      }
+    });
+
+    /* Harmonium Logic */
+
+    const notes = {
+        'a':261.63,
+        'w':277.18,
+        's':293.66,
+        'e':311.13,
+        'd':329.63,
+        'f':349.23,
+        't':369.99,
+        'g':392.00,
+        'y':415.30,
+        'h':440.00,
+        'u':466.16,
+        'j':493.88,
+        'k':523.25
+    };
+
+    let audioCtx,
+        masterGain,
+        bellows = 0,
+        lastAngle = 0;
+
+    let activeOscs = {};
+
+    const initAudio = () => {
+
+        if(audioCtx) return;
+
+        audioCtx = new (
+            window.AudioContext ||
+            window.webkitAudioContext
+        )();
+
+        masterGain = audioCtx.createGain();
+
+        masterGain.gain.value = 0;
+
+        masterGain.connect(audioCtx.destination);
+
+        document.getElementById('status-tip').innerText =
+        "Audio Active - Ready to play";
+    };
+
+    window.addEventListener('mousedown', initAudio);
+    window.addEventListener('keydown', initAudio);
+
+    /* WebSocket */
+
+    const socket = new WebSocket('ws://localhost:8765');
+
+    socket.onmessage = (event) => {
+
+        const data = JSON.parse(event.data);
+
+        const angle = data.angle;
+
+        document.getElementById('angle-display').innerText =
+        `Lid Angle: ${angle.toFixed(1)}°`;
+
+        if(lastAngle !== 0){
+
+            let change = lastAngle - angle;
+
+            if(change > 0.05){
+
+                bellows = Math.min(
+                    1.0,
+                    bellows + (change * 1.5)
+                );
+
+            }else{
+
+                bellows *= 0.98;
+
+            }
+        }
+
+        lastAngle = angle;
+    };
+
+    /* Air Decay */
+
+    setInterval(() => {
+
+        bellows *= 0.95;
+
+        document.getElementById('fill').style.width =
+        (bellows * 100) + "%";
+
+        if(masterGain){
+
+            masterGain.gain.setTargetAtTime(
+                bellows,
+                audioCtx.currentTime,
+                0.05
+            );
+        }
+
+    }, 50);
+
+    /* Keyboard */
+
+    window.onkeydown = (e) => {
+
+        const key = e.key.toLowerCase();
+
+        if(notes[key] && !activeOscs[key] && audioCtx){
+
+            const osc1 = audioCtx.createOscillator();
+            const osc2 = audioCtx.createOscillator();
+
+            osc1.type = 'sawtooth';
+            osc2.type = 'square';
+
+            osc1.frequency.value = notes[key];
+            osc2.frequency.value = notes[key] + 1.5;
+
+            const g = audioCtx.createGain();
+
+            g.gain.value = 0.25;
+
+            osc1.connect(g);
+            osc2.connect(g);
+
+            g.connect(masterGain);
+
+            osc1.start();
+            osc2.start();
+
+            activeOscs[key] = {
+                oscs:[osc1, osc2],
+                gain:g
+            };
+
+            const el =
+            document.getElementById(`key-${key}`);
+
+            if(el) el.classList.add('active');
+        }
+    };
+
+    window.onkeyup = (e) => {
+
+        const key = e.key.toLowerCase();
+
+        if(activeOscs[key]){
+
+            activeOscs[key].oscs.forEach(o => o.stop());
+
+            delete activeOscs[key];
+
+            const el =
+            document.getElementById(`key-${key}`);
+
+            if(el) el.classList.remove('active');
+        }
+    };
+
+</script>
+<br>
+<br>
+<br>
+<p>
+    <a href="anglemonitor.html" class="harmonium-btn">Angle Monitor</a>
+</p>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+    <h1> When does a man die? When he is hit by a bullet? No! When he suffers a disease? No! When he ate a soup made out of a poisonous mushroom? No! A man dies when he is forgotten!</h1>
+</body>
+</html>
